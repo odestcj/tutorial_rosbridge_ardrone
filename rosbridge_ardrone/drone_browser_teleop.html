@@ -1,0 +1,69 @@
+<html>
+<head>
+<title>Drone control via rosbridge</title>
+</head>
+<body>
+
+<script type="text/javascript" src="ros.js"></script>
+<script type="text/javascript">
+    // This is the turtle to connect to
+    var con = new Bridge("ws://localhost:9090");
+
+    // send velocity command to the robot
+    function takeoff() {
+        con.publish('/ardrone/takeoff', { });
+    }
+
+    function land() {
+        con.publish('/ardrone/land', { });
+    }
+
+    function start_moving(keycode) {
+	    console.log("Starting to move, keycode: " + keycode);
+	    if (keycode == 38) {
+		// Forward
+		con.publish('/cmd_vel', {"linear":{"x":1.0,"y":0,"z":0},"angular":{"x":0,"y":0,"z":0}});
+	    } else if (keycode == 40) {
+		// Backward
+		con.publish('/cmd_vel', {"linear":{"x":-1.0,"y":0,"z":0},"angular":{"x":0,"y":0,"z":0}});
+	    } else if (keycode == 39) {
+		// Left
+		con.publish('/cmd_vel', {"linear":{"x":0,"y":0,"z":0},"angular":{"x":0,"y":0,"z":-1.0}});
+	    } else if (keycode == 37) {
+		// Right
+		con.publish('/cmd_vel', {"linear":{"x":0,"y":0,"z":0},"angular":{"x":0,"y":0,"z":1.0}});
+	    } else if (keycode == 13) {
+                takeoff();
+            } else if (keycode == 32) {
+                land();
+            }
+
+    }
+
+    function stop_moving(keycode) {
+	    console.log("ELECTRIC Done moving, keycode: " + keycode);
+	    if (keycode >= 37 && keycode <= 40) {
+		con.publish('/cmd_vel', {"linear":{"x":0,"y":0,"z":0},"angular":{"x":0,"y":0,"z":0}});
+	    }
+    }
+
+    function main() { 
+	document.addEventListener('keydown', function(e) {start_moving(e.keyCode); }, true);
+	document.addEventListener('keyup', function(e) {stop_moving(e.keyCode); }, true);
+    }
+
+    main();
+
+</script>
+
+<h1>Drone controller</h1>
+
+Drive your drone by pressing the arrow keys. Take off with the enter key.  Land with the space key.
+
+<p>
+
+<img src="http://localhost:8080/stream?topic=/ardrone/image_raw">
+
+<p>
+</body>
+</html>
