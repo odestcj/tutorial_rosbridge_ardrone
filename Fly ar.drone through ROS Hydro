@@ -1,0 +1,73 @@
+These are instructions for how to run the ar.drone through your web browser (firefox) through Ubuntu and ROS Hydro
+
+Install Ubuntu 12.04
+begin following instructions at:  http://wiki.ros.org/hydro/Installation/Ubuntu
+-all repositories are properly allowed by default
+
+install terminal and terminator
+add them to the bar on the left side
+
+ros-hydro-desktop-full   Y
+this takes some time…
+hddtemp - no
+some more time…
+
+for reference - https://github.com/AutonomyLab/ardrone_autonomy
+sudo apt-get install ros-hydro-ardrone-autonomy 
+
+sudo apt-get install ros-hydro-mjpeg-server  
+
+for reference - http://wiki.ros.org/rosbridge_suite
+sudo apt-get install ros-hydro-rosbridge-server  (this worked fine)
+sudo apt-get install ros-hydro-rosbridge-suite  (this worked fine)
+
+Install the drone teleop package (excerpt from this old tutorial)
+cd ~/ros
+svn checkout http://brown-ros-pkg.googlecode.com/svn/trunk/experimental/drone_teleop
+
+gedit ~/.bashrc
+(add this to the end of the file)
+source /opt/ros/hydro/setup.bash
+export ROS_PACKAGE_PATH=~/ros:$ROS_PACKAGE_PATH
+export ROS_PACKAGE_PATH=~/home/obot/:$ROS_PACKAGE_PATH (modify this)
+
+close terminal windows and reopen them.  
+echo $ROS_PACKAGE_PATH
+result should be similar to this without the ‘obot’  : /home/obot/home/obot/:/home/obot/ros:/opt/ros/hydro/share:/opt/ros/hydro/stacks
+
+Turn on the drone and connect to its wifi
+run the following in separate terminal windows:
+roscore
+rosrun rosbridge_server rosbridge_websocket
+rosrun ardrone_autonomy ardrone_driver
+rosrun mjpeg_server mjpeg_server
+rosrun drone_teleop drone_teleop.py  // try to takeoff/land with the teleop then I ctrl+c to end it
+
+type this into firefox
+http://localhost:8080/stream?topic=/ardrone/image_raw  and see the live feed
+
+then install roswww
+cd to /home/obot/ros
+git clone https://github.com/tork-a/roswww_pkg.git
+ls to see that roswww_pkg is there in the folder
+in a new terminal window:
+rosrun roswww webserver.py
+
+navigate to the file in your web browser:  in Firefox:  
+File < Open File   /home/obot/ros/drone_teleop/www/drone_browser_teleop.html
+
+get the user interface that has more buttons (called yesno3)
+cd to /home/obot/ros/drone_teleop/www
+git clone https://github.com/JGRBiomed/drone_stuff.git
+edit the interface for localhost
+gedit drone_browser_teleop_yesno3
+save as drone_browser_teleop_yesno3_local
+edit lines 10/11 and 216/217  save and close
+ in Firefox:  File < Open File  /home/obot/ros/drone_teleop/www/drone_browser_teleop_yesno3_local.html
+(I always make it smaller <ctrl -> so that it fits in the screen)
+
+Fly!
+
+Modify the interface to make it how you like it - then share the improved one with us so that we can use it too!
+
+Next, you can share your drone with the world by adding your external IP address to the yesno3 interface and setting up port forwarding on ports 8000, 8080 and 9000.
